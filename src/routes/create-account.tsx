@@ -72,7 +72,6 @@ export default function CreateAccount() {
                 email,
                 password
             );
-            console.log(credentials);
             await updateProfile(credentials.user, { 
                 displayName: name 
             });
