@@ -8,11 +8,15 @@ import {
     Form,
     Input,
     Switcher,
-    Title,
+    // Title,
     Wrapper,
 } from "../components/auth-components";
+import GithubButton from "../components/github-btn";
 
-export default function CreateAccount() {
+import { Button } from '@mui/material';
+
+
+export default function Login() {
     const navigate = useNavigate();
     const [isLoading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
@@ -44,9 +48,14 @@ export default function CreateAccount() {
             setLoading(false);
         }
     };
+
+    // if (!window.Kakao.isInitialized()) {
+    //     window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+    // }
+
     return (
         <Wrapper>
-            <Title>Log into X</Title>
+            <img src="dragon.png" alt="imgae of login page" style={{ maxWidth: '35%', height: 'auto' }} />
             <Form onSubmit={onSubmit}>
                 <Input
                     onChange={onChange}
@@ -64,14 +73,31 @@ export default function CreateAccount() {
                     type="password"
                     required
                 />
-                <Input type="submit" value={isLoading ? "Loading" : "Log in"} />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                        borderRadius: 50,
+                        backgroundColor: '#ffffff', 
+                        color: 'black', 
+                        '&:hover': {
+                          backgroundColor: '#f0f0f0',
+                        }
+                      }}
+                    fullWidth
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Loading" : "Log in"}
+                </Button>
             </Form>
             {error !== "" ? <Error>{error}</Error> : null}
+            <GithubButton />
             <Switcher>
                 Don't have an account?{" "}
-                <Link to="/create-account">Create one &rarr;</Link>
-            </Switcher>
+                <Link to="/create-account">Create one</Link>
+                <span>🤗</span>
+            </Switcher> 
         </Wrapper>
     )
-
 }

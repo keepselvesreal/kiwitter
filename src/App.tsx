@@ -46,8 +46,8 @@ const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
   }
   body {
-    background-color: black;
-    color: white;
+    background-color: #C3E141;;
+    color: black;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
   `;
@@ -55,7 +55,7 @@ const GlobalStyles = createGlobalStyle`
 const Wrapper = styled.div`
 height: 100vh;
 display: flex;
-jjustify-content: center;
+justify-content: center;
 `
 
 function App() {
