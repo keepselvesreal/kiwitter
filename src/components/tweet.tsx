@@ -4,9 +4,21 @@ import { auth, db, storage } from "../firebase";
 import { deleteDoc, updateDoc, doc, collection } from "firebase/firestore";
 import { deleteObject, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useState } from "react";
-import { Card, CardContent, CardActions, CardMedia, Typography, TextField, Button } from "@mui/material";
+import {
+    Card,
+    CardHeader,
+    CardContent,
+    CardActions,
+    Typography,
+    TextField,
+    Button,
+    IconButton,
+    Menu,
+    MenuItem,
+    CardMedia
+  } from "@mui/material";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { green } from "@mui/material/colors";
-import ImageIcon from '@mui/icons-material/Image';
 
 
 const Wrapper = styled.div`
@@ -97,7 +109,17 @@ const ButtonWrapper = styled.div`
 export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTweet, setEditedTweet] = useState(tweet);
-    const [newPhoto, setNewPhoto] = useState<File | null>(null);
+    const [newPhoto, setNewPhoto] = useState<File | null>(null); 
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const user = auth.currentUser;
     const onDelete = async () => {
@@ -114,11 +136,13 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         } finally {
             //
         }
+        handleClose();
     };
 
-    const toggleEdit = () => {
-        setIsEditing(!isEditing);
-    }
+    const onEdit = () => {
+        setIsEditing(true);
+        handleClose();
+    };
 
     const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { files } = e.target;
@@ -142,6 +166,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
 
         setIsEditing(false);
         setNewPhoto(null);
+        handleClose(); // 필요? 그러하다면 왜?
     };
 
     const cancelEdit = () => {
@@ -150,66 +175,90 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
     };
 
     return (
-        <Card sx={{ bgcolor: green[100], maxWidth: 345, margin: 'auto', mt: 2 }}>
+        <Card sx={{ maxWidth: 500, bgcolor: green[100], margin: 'auto', mt: 2, overflow: 'hidden' }}>
+            <CardHeader
+                action={
+                    !isEditing && (
+                        <>
+                            <IconButton
+                                aria-label="settings"
+                                onClick={handleClick}
+                            >
+                                <MoreVertIcon />
+                            </IconButton>
+                            <Menu
+                                id="long-menu"
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={onEdit}>편집</MenuItem>
+                                <MenuItem onClick={onDelete}>삭제</MenuItem>
+                            </Menu>
+                        </>
+                    )
+                }
+                title={username}
+                subheader={`@${userId}`}
+            />
             <CardContent>
-                <Typography gutterBottom variant="h6" component="div">
-                    {username}
-                </Typography>
-                {isEditing ? (
-                    <TextField
-                        fullWidth
-                        multiline
-                        value={editedTweet}
-                        onChange={(e) => setEditedTweet(e.target.value)}
-                        variant="outlined"
-                        margin="normal"
-                    />
-                ) : (
-                    <Typography variant="body2" color="text.secondary">
+                {!isEditing ? (
+                    <Typography variant="body1" color="text.secondary">
                         {tweet}
                     </Typography>
-                )}
-                {photo && !isEditing && (
-                    <CardMedia
-                        component="img"
-                        height="140"
-                        image={photo}
-                        alt="Tweet photo"
-                    />
+                ) : (
+                    <>
+                        <TextField
+                            fullWidth
+                            multiline
+                            value={editedTweet}
+                            onChange={(e) => setEditedTweet(e.target.value)}
+                            variant="outlined"
+                            margin="normal"
+                        />
+                        <Button
+                            variant="contained"
+                            component="label"
+                        >
+                            사진 업로드
+                            <input
+                                type="file"
+                                hidden
+                                onChange={onPhotoChange}
+                                accept="image/*"
+                            />
+                        </Button>
+                    </>
                 )}
             </CardContent>
+            {photo && !isEditing && (
+                <CardMedia
+                    component="img"
+                    sx={{ height: 'auto', width: '100%' }}
+                    image={photo}
+                    alt="Tweet photo"
+                />
+            )}
             <CardActions>
                 {isEditing ? (
                     <>
                         <Button variant="contained" color="primary" onClick={saveEdit}>
-                            Save
+                            저장
                         </Button>
                         <Button variant="contained" color="secondary" onClick={cancelEdit}>
-                            Cancel
+                            취소
                         </Button>
-                        <label htmlFor="image-upload-button">
-                            <input
-                                accept="image/*"
-                                id="image-upload-button"
-                                type="file"
-                                style={{ display: 'none' }}
-                                onChange={onPhotoChange}
-                            />
-                            <Button variant="contained" component="span" startIcon={<ImageIcon />}>
-                                Upload
-                            </Button>
-                        </label>
                     </>
                 ) : (
                     user?.uid === userId && (
-                        <Button variant="contained" color="primary" onClick={() => setIsEditing(true)}>
-                            Edit
+                        <Button variant="contained" color="primary" onClick={onEdit}>
+                            편집
                         </Button>
                     )
                 )}
                 {user?.uid === userId && !isEditing && (
                     <Button variant="contained" color="error" onClick={onDelete}>
-                        Delete
+                        삭제
                     </Button>
                 )}
             </CardActions>
