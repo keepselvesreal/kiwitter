@@ -18,64 +18,8 @@ import {
     CardMedia
   } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { green } from "@mui/material/colors";
+import Avatar from '@mui/material/Avatar'; // Avatar 컴포넌트 임포트
 
-
-const Wrapper = styled.div`
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 15px;
-`;
-
-const Column = styled.div`
-    &:last-child {
-        place-self: end;
-    }
-`;
-
-const Photo = styled.img`
-    width: 100px;
-    height: 100px;
-    border-radius: 15px;
-`;
-
-const Username = styled.span`
-    font-weight: 600;
-    font-size: 15px;
-`;
-
-// const Payload = styled.p`
-//     margin: 10px 0px;
-//     font-size: 18px;
-// `;
-const Payload = styled.p`
-    margin: 10px 0px;
-    font-size: 18px;
-    background-color: ${(props) => (props.isEditing ? 'black' : 'purple')}; // 여기서 kiwiColor를 원하는 색상 코드로 대체하세요
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-`;
-
-const EditableTextarea = styled.textarea`
-    width: 100%;
-    // 여기에 추가 스타일링
-`;
-
-
-const DeleteButton = styled.button`
-  background-color: tomato;
-  color: white;
-  font-weight: 600;
-  border: 0;
-  font-size: 12px;
-  padding: 5px 10px;
-  text-transform: uppercase;
-  border-radius: 5px;
-  cursor: pointer;
-`;
 
 const EditButton = styled.button`
   background-color: skyblue;
@@ -87,22 +31,6 @@ const EditButton = styled.button`
   text-transform: uppercase;
   border-radius: 5px;
   cursor: pointer;
-`;
-
-const SaveButton = styled(EditButton)`
-  background-color: green;
-`;
-
-const CancelButton = styled(EditButton)`
-  background-color: red;
-`;
-
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: start;
-  gap: 10px; // 버튼 사이의 간격
-  margin-top: 10px; // 위쪽 여백
 `;
 
 
@@ -174,9 +102,12 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         setEditedTweet(tweet); // 편집 취소 시 원래 트윗으로 초기화
     };
 
+    const avatarUrl = "https://via.placeholder.com/150";
+
     return (
-        <Card sx={{ maxWidth: 500, bgcolor: green[100], margin: 'auto', mt: 2, overflow: 'hidden' }}>
+        <Card sx={{ Width: "100%",  margin: 0, mt: 2, overflow: 'hidden' }}>
             <CardHeader
+                avatar={<Avatar sx={{ bgcolor: 'silver', width: 56, height: 56 }}>G</Avatar>}
                 action={
                     !isEditing && (
                         <>
@@ -198,8 +129,11 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
                         </>
                     )
                 }
-                title={username}
-                subheader={`@${userId}`}
+                title={
+                    <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: '1.25rem' }}>
+                        {username}
+                    </Typography>
+                }
             />
             <CardContent>
                 {!isEditing ? (
@@ -240,7 +174,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
                 />
             )}
             <CardActions>
-                {isEditing ? (
+                {isEditing && (
                     <>
                         <Button variant="contained" color="primary" onClick={saveEdit}>
                             저장
@@ -249,17 +183,6 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
                             취소
                         </Button>
                     </>
-                ) : (
-                    user?.uid === userId && (
-                        <Button variant="contained" color="primary" onClick={onEdit}>
-                            편집
-                        </Button>
-                    )
-                )}
-                {user?.uid === userId && !isEditing && (
-                    <Button variant="contained" color="error" onClick={onDelete}>
-                        삭제
-                    </Button>
                 )}
             </CardActions>
         </Card>
