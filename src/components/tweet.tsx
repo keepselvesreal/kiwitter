@@ -132,7 +132,9 @@ export default function Tweet({ username, photo, tweet, userId, id, onBookmarkTo
         if (isBookmarked) {
             await deleteDoc(bookmarkRef);
             setIsBookmarked(false);
-            onBookmarkToggle();
+            if (onBookmarkToggle) {
+                onBookmarkToggle(); // 북마크 해제 시에만 호출
+            }
         } else {
             await setDoc(bookmarkRef, {
                 userId: user?.uid,
