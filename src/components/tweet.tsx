@@ -1,9 +1,9 @@
 import { styled } from "styled-components";
 import { ITweet } from "./timeline";
 import { auth, db, storage } from "../firebase";
-import { deleteDoc, updateDoc, doc, collection } from "firebase/firestore";
+import { deleteDoc, updateDoc, getDoc, doc, collection, setDoc, Timestamp } from "firebase/firestore";
 import { deleteObject, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Card,
     CardHeader,
@@ -19,6 +19,13 @@ import {
   } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Avatar from '@mui/material/Avatar'; // Avatar 컴포넌트 임포트
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+
+
+interface TweetProps extends ITweet {
+    onRemoveBookmark: () => void; // 이 함수를 Tweet 컴포넌트의 prop으로 추가합니다.
+  }
 
 
 const EditButton = styled.button`
@@ -34,12 +41,13 @@ const EditButton = styled.button`
 `;
 
 
-export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
+export default function Tweet({ username, photo, tweet, userId, id, onBookmarkToggle }: ITweet) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTweet, setEditedTweet] = useState(tweet);
     const [newPhoto, setNewPhoto] = useState<File | null>(null); 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const [isBookmarked, setIsBookmarked] = useState(false);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -102,7 +110,38 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         setEditedTweet(tweet); // 편집 취소 시 원래 트윗으로 초기화
     };
 
-    const avatarUrl = "https://via.placeholder.com/150";
+    useEffect(() => {
+        const checkBookmark = async () => {
+            const docRef = doc(db, "bookmarks", `${user.uid}_${id}`);
+            const docSnap = await getDoc(docRef)
+            if (docSnap.exists()) {
+                setIsBookmarked(true);
+            } else {
+                setIsBookmarked(false);
+            }
+        };
+
+        if (user) {
+            checkBookmark();
+        }
+    }, [user, id])
+
+    const toggleBookmark = async () => {
+        const bookmarkRef = doc(db, "bookmarks", `${user.uid}_${id}`);
+        
+        if (isBookmarked) {
+            await deleteDoc(bookmarkRef);
+            setIsBookmarked(false);
+            onBookmarkToggle();
+        } else {
+            await setDoc(bookmarkRef, {
+                userId: user?.uid,
+                tweetId: id,
+                createAt: Timestamp.now()
+            });
+            setIsBookmarked(true);
+        }
+    }
 
     return (
         <Card sx={{ Width: "100%",  margin: 0, mt: 2, overflow: 'hidden' }}>
@@ -174,7 +213,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
                 />
             )}
             <CardActions>
-                {isEditing && (
+                {isEditing ? (
                     <>
                         <Button variant="contained" color="primary" onClick={saveEdit}>
                             저장
@@ -183,7 +222,11 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
                             취소
                         </Button>
                     </>
-                )}
+                     ): (
+                        <IconButton onClick={toggleBookmark}>
+                            {isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                        </IconButton>
+                        )}
             </CardActions>
         </Card>
     );
