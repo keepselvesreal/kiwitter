@@ -8,11 +8,17 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
+  "parserOptions": { // 여기
+    "project": './tsconfig.json',
+    "createDefaultProgram": true
+  },
   plugins: ['react-refresh'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
       { allowConstantExport: true },
     ],
+    'linebreak-style': 0,
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 }
