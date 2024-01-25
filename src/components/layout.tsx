@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Box, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, InputBase, Paper, Toolbar, CssBaseline, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
@@ -10,7 +9,6 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { auth } from "../firebase";
-import LogoIcon from '@mui/icons-material/AcUnit'; // SVG 로고 파일
 import localImage from '../../public/dragon.png';
 
 const drawerWidth = 240;
@@ -26,7 +24,6 @@ export default function Layout() {
         }
     };
 
-    // 적용할 스타일링
     const searchStyle = {
         borderRadius: '20px',
         backgroundColor: '#f1f3f4',
@@ -37,16 +34,29 @@ export default function Layout() {
         padding: '2px 20px',
     };
 
+    // 스크롤 바 숨기기 스타일 정의
+    const hiddenScrollbarStyle = {
+        overflowY: 'auto', // 스크롤 가능하게 설정
+        '&::-webkit-scrollbar': {
+            display: 'none',
+        },
+        '-ms-overflow-style': 'none', // IE와 Edge를 위한 설정
+        'scrollbar-width': 'none', // Firefox를 위한 설정
+    };
+
     return (
         <>
             <CssBaseline />
             <Box sx={{ 
                 display: 'flex', 
-                justifyContent: 'center', 
-                backgroundColor: ' #C9E14F', 
-                minHeight: '100vh', 
-                px: 12,
-                overflow: 'auto' // Allows for scrolling if content overflows
+                flexDirection: 'column',
+                alignItems: 'center', // 변경: 가로축을 중심으로 아이템들을 중앙에 배치
+                backgroundColor: '#C9E14F',
+                width: "100%",
+                minHeight: '100vh',
+px: 3, // 변경: 좌우 패딩을 20px에서 3으로 조정
+                // overflow: 'auto' // Allows for scrolling if content overflows
+                ...hiddenScrollbarStyle,
                  }}>
                 <Box sx={{ width: drawerWidth, flexShrink: 0 }}>
                     <Drawer
@@ -58,6 +68,7 @@ export default function Layout() {
                                 bgcolor: ' #A36C43',
                                 color: 'white',
                                 borderRight: '1px solid #474a4d',
+                                ...hiddenScrollbarStyle,
                             },
                         }}
                     >
@@ -84,19 +95,19 @@ export default function Layout() {
                                 </Paper>
                             </ListItem>
                             {/* ... 여기에 다른 리스트 아이템들 ... */}
-                            <ListItem button key="Home" component={Link} to="/home">
+                            <ListItem button key="Home" component={Link} to="/">
                         <ListItemIcon sx={{ color: 'white' }}><HomeIcon /></ListItemIcon>
                         <ListItemText primary="Home" />
                         </ListItem>
                         {/* ... 여기에 다른 리스트 아이템들 ... */}
-                        <ListItem button key="Messages" component={Link} to="/messages">
-                            <ListItemIcon sx={{ color: 'white' }}><MessageIcon /></ListItemIcon>
-                            <ListItemText primary="Messages" />
-                        </ListItem>
                         {/* ... 나머지 리스트 아이템 ... */}
                         <ListItem button key="Bookmarks" component={Link} to="/bookmarks">
                             <ListItemIcon sx={{ color: 'white' }}><BookmarkIcon /></ListItemIcon>
                             <ListItemText primary="Bookmarks" />
+                        </ListItem>
+                        <ListItem button key="Chat" component={Link} to="/chat">
+                            <ListItemIcon sx={{ color: 'white' }}><MessageIcon /></ListItemIcon>
+                            <ListItemText primary="Chat" />
                         </ListItem>
                         {/* ... 나머지 리스트 아이템 ... */}
                         <ListItem button key="Profile" component={Link} to="/profile">
@@ -116,7 +127,7 @@ export default function Layout() {
                         </List>
                     </Drawer>
                 </Box>
-                <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                <Box component="main" sx={{ flexGrow: 1, p: 3, width: '100%' }}>
                     <Outlet />
                 </Box>
                 <Drawer
@@ -133,6 +144,7 @@ export default function Layout() {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
+                            ...hiddenScrollbarStyle,
                         },
                     }}
                 >

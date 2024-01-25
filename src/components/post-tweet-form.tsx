@@ -5,16 +5,13 @@ import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Button, TextField, Box, Avatar, IconButton, Stack, CircularProgress } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto'; // 사진 추가
+import { commonStyles } from "../styles/commonStyles";
+
 
 export default function PostTweetForm() {
     const [isLoading, setLoading] = useState(false);
     const [tweet, setTweet] = useState("");
     const [file, setFile] = useState<File | null>(null);
-    const [profilePic, setProfilePic] = useState('https://via.placeholder.com/150');
-
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTweet(e.target.value);
-    };
 
     const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { files } = e.target;
@@ -60,31 +57,27 @@ export default function PostTweetForm() {
             autoComplete="off"
             onSubmit={onSubmit}
             sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                alignItems: 'center',
-                justifyContent: 'flex-start',
+                ...commonStyles,
                 p: 2,
                 bgcolor: 'background.paper', // 백그라운드 색상
                 borderRadius: 2, // 둥근 모서리
                 boxShadow: 1, // 그림자 효과
-                maxWidth: 'none', // 최대 너비 없음
-                width: '100%', // 부모의 100% 너비
                 margin: 0,
             }}
         >
             <Stack direction="row" spacing={2} alignItems="flex-start">
                 <Avatar sx={{ bgcolor: 'silver', width: 56, height: 56 }}>G</Avatar>
                 <TextField
-                fullWidth
-                multiline
-                rows={3}
-                value={tweet}
-                onChange={(e) => setTweet(e.target.value)}
-                placeholder="What is happening?"
-                variant="outlined"
-                sx={{ width: 300}}
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={tweet}
+                    onChange={(e) => setTweet(e.target.value)}
+                    placeholder="What is happening?"
+                    variant="outlined"
+                    sx={{
+                        width: '100%', // 부모의 100% 너비를 사용비 
+                        }}
                 />
             </Stack>
             <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center" width="100%">

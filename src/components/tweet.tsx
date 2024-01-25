@@ -1,7 +1,6 @@
-import { styled } from "styled-components";
 import { ITweet } from "./timeline";
 import { auth, db, storage } from "../firebase";
-import { deleteDoc, updateDoc, getDoc, doc, collection, setDoc, Timestamp } from "firebase/firestore";
+import { deleteDoc, updateDoc, getDoc, doc, setDoc, Timestamp } from "firebase/firestore";
 import { deleteObject, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useState, useEffect } from "react";
 import {
@@ -21,35 +20,18 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Avatar from '@mui/material/Avatar'; // Avatar 컴포넌트 임포트
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-
-
-interface TweetProps extends ITweet {
-    onRemoveBookmark: () => void; // 이 함수를 Tweet 컴포넌트의 prop으로 추가합니다.
-  }
-
-
-const EditButton = styled.button`
-  background-color: skyblue;
-  color: white;
-  font-weight: 600;
-  border: 0;
-  font-size: 12px;
-  padding: 5px 10px;
-  text-transform: uppercase;
-  border-radius: 5px;
-  cursor: pointer;
-`;
+import { commonStyles } from "../styles/commonStyles";
 
 
 export default function Tweet({ username, photo, tweet, userId, id, onBookmarkToggle }: ITweet) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTweet, setEditedTweet] = useState(tweet);
     const [newPhoto, setNewPhoto] = useState<File | null>(null); 
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
     const [isBookmarked, setIsBookmarked] = useState(false);
 
-    const handleClick = (event) => {
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
@@ -90,7 +72,7 @@ export default function Tweet({ username, photo, tweet, userId, id, onBookmarkTo
     const saveEdit = async () => {
         let photoURL = photo;
         if (newPhoto) {
-            const photoRef = ref(storage, `tweets/${user.uid}/${id}`);
+            const photoRef = ref(storage, `tweets/${user?.uid}/${id}`);
             const uploadResult = await uploadBytes(photoRef, newPhoto);
             photoURL = await getDownloadURL(uploadResult.ref);
         }
@@ -112,7 +94,7 @@ export default function Tweet({ username, photo, tweet, userId, id, onBookmarkTo
 
     useEffect(() => {
         const checkBookmark = async () => {
-            const docRef = doc(db, "bookmarks", `${user.uid}_${id}`);
+            const docRef = doc(db, "bookmarks", `${user?.uid}_${id}`);
             const docSnap = await getDoc(docRef)
             if (docSnap.exists()) {
                 setIsBookmarked(true);
@@ -127,7 +109,7 @@ export default function Tweet({ username, photo, tweet, userId, id, onBookmarkTo
     }, [user, id])
 
     const toggleBookmark = async () => {
-        const bookmarkRef = doc(db, "bookmarks", `${user.uid}_${id}`);
+        const bookmarkRef = doc(db, "bookmarks", `${user?.uid}_${id}`);
         
         if (isBookmarked) {
             await deleteDoc(bookmarkRef);
@@ -146,7 +128,8 @@ export default function Tweet({ username, photo, tweet, userId, id, onBookmarkTo
     }
 
     return (
-        <Card sx={{ Width: "100%",  margin: 0, mt: 2, overflow: 'hidden' }}>
+        // <Card sx={{ maxWidth: 600, width: "100%", mx: 'auto', my: 2, overflow: 'hidden', display: 'flex', flexDirection: 'column'  }}>
+        <Card sx={{ ...commonStyles, my: 2, overflow: 'visible' }}>
             <CardHeader
                 avatar={<Avatar sx={{ bgcolor: 'silver', width: 56, height: 56 }}>G</Avatar>}
                 action={

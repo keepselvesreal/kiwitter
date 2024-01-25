@@ -14,14 +14,11 @@ import {
 } from "firebase/firestore";
 import { ITweet } from "../components/timeline";
 import Tweet from "../components/tweet";
+import { Wrapper } from "../styles/commonStyles";
+import { Avatar, Button, TextField } from '@mui/material';
+import { styled as muiStyled } from '@mui/system';
 
 
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 20px;
-`;
 const AvatarUpload = styled.label`
   width: 80px;
   overflow: hidden;
@@ -37,13 +34,10 @@ const AvatarUpload = styled.label`
   }
 `;
 
-const AvatarImg = styled.img`
-  width: 100%;
-  height: 100%; // ts: 추가 전에는 살짝 이미지 뒤에 배경이 보였음
-`;
 const AvatarInput = styled.input`
   display: none;
 `;
+
 const Name = styled.span`
   font-size: 22px;
 `;
@@ -55,9 +49,21 @@ const Tweets = styled.div`
   gap: 10px;
 `;
 
+const StyledAvatar = muiStyled(Avatar)({
+    width: '80px', // 아바타 크기를 조정합니다.
+    height: '80px', // 아바타 크기를 조정합니다.
+});
+
+const StyledButton = muiStyled(Button)({
+    fontSize: '0.75rem', // 버튼의 폰트 크기를 조정합니다.
+    padding: '3px 8px', // 버튼의 내부 패딩을 조정합니다.
+    minWidth: '32px', // 버튼의 최소 너비를 조정합니다.
+});
+
+
 export default function Profile() {
     const user = auth.currentUser;
-    const [avatar, setAvatar] = useState<string | null>(user?.photoURL);
+    const [avatar, setAvatar] = useState<string | null | undefined>(user?.photoURL);
     const [username, setUsername] = useState<string>(user?.displayName || "Anonymous");
     const [editMode, setEditMode] = useState<boolean>(false);
     const [tweets, setTweets] = useState<ITweet[]>([]);
@@ -73,37 +79,39 @@ export default function Profile() {
             await updateProfile(user, { photoURL: avatarUrl});
         }
     };
-    const fetchTweets = async () => {
-        const tweetQuery = query(
-            collection(db, "tweets"),
-            where("userId", "==", user?.uid),
-            orderBy("createdAt", "desc"),
-            limit(25)
-        );
-        const snapshot = await getDocs(tweetQuery);
-        const tweets = snapshot.docs.map((doc) => {
-            const {tweet, createdAt, userId, username, photo } = doc.data();
-            return {
-                tweet, 
-                createdAt,
-                userId,
-                username,
-                photo,
-                id: doc.id
-            };
-            });
-        setTweets(tweets);
-    };
+    
     useEffect(() => {
+        const fetchTweets = async () => {
+            const tweetQuery = query(
+                collection(db, "tweets"),
+                where("userId", "==", user?.uid),
+                orderBy("createdAt", "desc"),
+                limit(25)
+            );
+            const snapshot = await getDocs(tweetQuery);
+            const tweets = snapshot.docs.map((doc) => {
+                const {tweet, createdAt, userId, username, photo } = doc.data();
+                return {
+                    tweet, 
+                    createdAt,
+                    userId,
+                    username,
+                    photo,
+                    id: doc.id
+                };
+                });
+            setTweets(tweets);
+        };
+
         fetchTweets();
-    }, []);
+    }, [user?.uid]);
     const onUsernameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(e.target.value);
     }
 
     const saveUsername = async () => {
         if (user) {
-            await updateProfile(user, { displayName: username });
+            await updateProfile(user, { displayName: username || null });
 
             if (window.confirm("이전에 작성된 트윗에도 변경사항을 적용할까요?")) {
                 await updateUsernameInTweets(user.uid, username);
@@ -112,7 +120,7 @@ export default function Profile() {
         setEditMode(false);
     }
 
-    const updateUsernameInTweets = async (userId, newUsername) => {
+    const updateUsernameInTweets = async (userId: string, newUsername: string) => {
         const tweetsRef = collection(db, "tweets");
         const q = query(tweetsRef, where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
@@ -124,19 +132,9 @@ export default function Profile() {
     return (
         <Wrapper>
             <AvatarUpload htmlFor="avatar">
-                {avatar ? (
-                    <AvatarImg src={avatar} />
-                ) : (
-                    <svg
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                    >
-                        <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
-                    </svg>
-                )}
+                <StyledAvatar src={avatar || undefined} />
             </AvatarUpload>
+                
             <AvatarInput
                 onChange={onAVatarChange}
                 id="avatar"
@@ -146,16 +144,20 @@ export default function Profile() {
             <Name>
                 {editMode ? (
                     <div>
-                        <input 
+                        <TextField
+                            fullWidth
+                            variant="outlined"
                             value={username}
                             onChange={onUsernameChange}
+                            margin="normal"
                         />
-                        <button onClick={saveUsername}>저장</button>
+                        <StyledButton variant="contained" color="primary" onClick={saveUsername}>저장</StyledButton>
                     </div>
                 ) : (
-                    <div>
+                    <div style={{ textAlign: 'center' }}>
                         {username}
-                        <button onClick={() => setEditMode(true)}>수정</button>
+                        <br />
+                        <StyledButton variant="contained" color="secondary" onClick={() => setEditMode(true)}>이름 수정</StyledButton>
                     </div>
                 )}
                 

@@ -7,10 +7,10 @@ import {
     query 
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { styled } from "styled-components";
 import { db } from "../firebase";
 import Tweet from "./tweet";
 import { Unsubscribe } from "firebase/auth";
+import { Wrapper } from "../styles/commonStyles";
 
 
 export interface ITweet {
@@ -20,13 +20,9 @@ export interface ITweet {
     userId: string;
     username: string;
     createdAt: number;
+    onBookmarkToggle?: () => void;
 }
 
-const Wrapper = styled.div`
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
-`;
 
 export default function Timeline() {
     const [tweets, setTweet] = useState<ITweet[]>([]);

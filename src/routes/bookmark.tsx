@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { styled } from "styled-components";
 import { auth, db } from "../firebase";
 import {
     collection,
@@ -8,17 +7,13 @@ import {
     getDocs,
     getDoc,
     DocumentData,
-    deleteDoc,
     doc
 } from "firebase/firestore";
+
 import Tweet from "../components/tweet";
 import { ITweet } from "../components/timeline";
+import { Wrapper } from "../styles/commonStyles";
 
-const Wrapper = styled.div`
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
-`;
 
 export default function Bookmarks() {
     const [bookmarkedTweets, setBookmarkedTweets] = useState<ITweet[]>([]);
